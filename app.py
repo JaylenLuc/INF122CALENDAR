@@ -18,13 +18,19 @@ class MainWindow(QMainWindow):
 
         self.setMinimumSize(QSize(1200, 1000))
         calendar_layout = QGridLayout()
-
+        self.events_list_widgit = QWidget()
+        self.events_list = QVBoxLayout()
+        events_title = QLabel("Events for selected day:")
+        self.events_title_day = QLabel("No Date Selected")
+        self.events_list.addWidget(events_title)
+        self.events_list.addWidget(self.events_title_day)
+        self.events_list_widgit.setLayout(self.events_list)
         #Calendar widget
         self.calendar = QCalendarWidget()
         self.calendar.setGridVisible(True)
         self.calendar.selectionChanged.connect(self.calendar_date_slot)
         calendar_layout.addWidget(self.calendar,1,1)
-
+        calendar_layout.addWidget(self.events_list_widgit,1,0)
         #date selection label
         self.label = QLabel("No Date Selected")
         self.label.setFont(QFont("Courier", 15))
@@ -120,6 +126,7 @@ class MainWindow(QMainWindow):
         #just pass in the QDate to the event class because it has relevant getters
         self.label.setText("Selected Date Is : " + date_in_string)
         self.settings_date_selection.setText("Selected Date Is : " + date_in_string)
+        self.events_title_day.setText(date_in_string)
 
     def reveal_settings_add(self):
         self.stacked_layout.setCurrentIndex(0)
