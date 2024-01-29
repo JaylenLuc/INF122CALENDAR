@@ -3,7 +3,7 @@ import sys
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton
 
-from PyQt6.QtWidgets import QHBoxLayout, QApplication,QMainWindow, QWidget, QLabel, QCalendarWidget ,QVBoxLayout
+from PyQt6.QtWidgets import QHBoxLayout,QStackedLayout,QLabel, QLineEdit  ,QGridLayout ,QApplication,QMainWindow, QWidget, QLabel, QCalendarWidget ,QVBoxLayout
 from PyQt6.QtGui import QIcon, QFont
 
 # Subclass QMainWindow to customize your application's main window
@@ -17,43 +17,58 @@ class MainWindow(QMainWindow):
         # Set the central widget of the Window.
 
         self.setMinimumSize(QSize(1200, 1000))
-        vbox = QVBoxLayout()
+        calendar_layout = QGridLayout()
 
         #Calendar widget
         self.calendar = QCalendarWidget()
         self.calendar.setGridVisible(True)
         self.calendar.selectionChanged.connect(self.calendar_date_slot)
-        vbox.addWidget(self.calendar)
+        calendar_layout.addWidget(self.calendar,1,1)
 
         #date selection label
         self.label = QLabel("No Date Selected")
         self.label.setFont(QFont("Courier", 15))
         self.label.setStyleSheet('color:green')
-        vbox.addWidget(self.label)
+        calendar_layout.addWidget(self.label,2,1)
 
         #event buttons layout
-        button_layout = QHBoxLayout()
+        settings_layout = QVBoxLayout()
+
         addeventbutton = QPushButton("Add Event")
         addeventbutton.setStyleSheet('color:green')
+
         removeeventbutton = QPushButton("Remove Event")
         removeeventbutton.setStyleSheet('color:green')
+
         updateeventbutton = QPushButton("Update Event")
         updateeventbutton.setStyleSheet('color:green')
-        addeventbutton.resize(150, 50) 
-        button_layout.addWidget(addeventbutton)
-        button_layout.addWidget(removeeventbutton)
-        button_layout.addWidget(updateeventbutton)
-        vbox.addLayout(button_layout)
 
-        calendar_widget = QWidget()
-        calendar_widget.setLayout(vbox)
-        self.setCentralWidget(calendar_widget)
+        settings_layout.addWidget(addeventbutton)
+        settings_layout.addWidget(removeeventbutton)
+        settings_layout.addWidget(updateeventbutton)
+
+        stacked_layout = QStackedLayout()
+        #here is where u add layouts for each function to the stacked_layout 
+        #self.settings_add_event_ = QWidget() then add a layout to taht QWidget and thats gonna be the settings for each button
+        settings_layout.addLayout(stacked_layout)
+
+
+    
+        stacked_layout.addWidget(QLineEdit())
+
+
+        calendar_layout.addLayout(settings_layout,1,2)
+    
+        main_widget = QWidget()
+        main_widget.setLayout(calendar_layout)
+        self.setCentralWidget(main_widget)
+        #main_widget.        
 
 
     def calendar_date_slot(self):
-        dateselected = self.calendar.selectedDate()
-        date_in_string = str(dateselected.toPyDate())
- 
+        date_class = self.calendar.selectedDate()
+        date_in_string = str(date_class.toString())
+        #just pass in the QDate to the event class because it has relevant getters
         self.label.setText("Selected Date Is : " + date_in_string)
  
  
