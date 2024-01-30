@@ -1,8 +1,10 @@
 import sys
 
+import users
+
+
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton
-
 from PyQt6.QtWidgets import QHBoxLayout,QComboBox,QStackedLayout,QLabel, QLineEdit  ,QGridLayout ,QApplication,QMainWindow, QWidget, QLabel, QCalendarWidget ,QVBoxLayout
 from PyQt6.QtGui import QIcon, QFont
 
@@ -13,7 +15,12 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle("Calendar Application")
         button = QPushButton("Press Me!")
-
+        self.selected_user_index = 0
+        self.date_class = ""
+        self.users = []
+        #for now add one user initially
+        main_user = users.User(1,"user")
+        self.users.append(main_user)
         # Set the central widget of the Window.
 
         self.setMinimumSize(QSize(1200, 1000))
@@ -88,6 +95,7 @@ class MainWindow(QMainWindow):
         add_event_layout.addWidget(min_combo_box_labele)
         add_event_layout.addWidget(min_combo_boxe)
         add_event_button = QPushButton()
+        add_event_button.released.connect(self.add_event)
         add_event_button.setText("Add Event")
         add_event_layout.addWidget(add_event_button)
         self.stacked_layout.addWidget(settings_add_event_)
@@ -121,8 +129,8 @@ class MainWindow(QMainWindow):
 
 
     def calendar_date_slot(self):
-        date_class = self.calendar.selectedDate()
-        date_in_string = str(date_class.toString())
+        self.date_class = self.calendar.selectedDate()
+        date_in_string = str(self.date_class.toString())
         #just pass in the QDate to the event class because it has relevant getters
         self.label.setText("Selected Date Is : " + date_in_string)
         self.settings_date_selection.setText("Selected Date Is : " + date_in_string)
@@ -136,6 +144,10 @@ class MainWindow(QMainWindow):
 
     def reveal_settings_update(self):
         self.stacked_layout.setCurrentIndex(2)
+
+    def add_event(self):
+        current_user = self.users[self.selected_user_index]
+        #add event and use date_class to determine which set of events to show 
  
  
  

@@ -9,6 +9,7 @@ class User :
         self.username = userName
         self.events = dict() # [int, Event]
         self.calendars = set() # 1 = gregorian calendar
+        self.calendars.add(1)
         self.timetype = 24 
 
     def createCalendar(self, type : int):
