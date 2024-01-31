@@ -28,6 +28,7 @@ class MainWindow(QMainWindow):
         #major high level layouts and widgits/ sections 
         self.calendar_layout = QGridLayout() #canvas
         self.stacked_layout = QStackedLayout() #settings input
+        self.scroll_area_bed = QVBoxLayout()
         self.events_list_widgit = QScrollArea() #left side events list interface
         self.events_list_widgit.setWidgetResizable(True)
         self.events_list_widgit.setFixedHeight(400)
@@ -74,9 +75,11 @@ class MainWindow(QMainWindow):
         self.scroll_events_box_layout = QVBoxLayout()
         self.child_widgit.setLayout(self.scroll_events_box_layout)
         #self.scroll_events_box_layout.addStretch()
-        
+        events_list_label = QLabel("All your events")
         self.events_list_widgit.setWidget(self.child_widgit)
-        self.calendar_layout.addWidget(self.events_list_widgit, 2,1)
+        self.scroll_area_bed.addWidget(events_list_label)
+        self.scroll_area_bed.addWidget(self.events_list_widgit)
+        self.calendar_layout.addLayout(self.scroll_area_bed, 2,1)
 
         #self.scroll_events_box_layout.addWidget(QLabel("NEWLABEL"))
     
