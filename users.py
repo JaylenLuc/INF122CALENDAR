@@ -12,40 +12,45 @@ class User :
         self.calendars.add(1)
         self.timetype = 24 
 
-    # def createCalendar(self, type : int):
-    #     if (type > 0 and type <= User.SUPPORTED_CALENDARS):
-    #         self.calendars.add(type)
-    #     else:
-    #         print("tried to add unsupported calendar type")
     def __str__(self):
         ret = ""
         for k,v in self.events.items():
             ret += f" {k}: { [i.__str__() for i in v] }\n"
         return ret
+    
     def createEvent(self, title : str, startHour: int, endHour: int, startMin: int, endMin: int, curr_day):
         #create unique ID for each event and check for conflicts
         start_time = str(startHour) + str(startMin)
         end_time = str(endHour) + str(endMin)
-        #checks for valid start and end times
-        # if (not title):
-        #     print("title cannot be empty")
-        #     return 
 
-        if self.timetype == 24 and  (int(startHour) < int(endHour)):
+        if self.timetype == 24 and  (int(startHour) < int(endHour) or (int(startHour) == int(endHour) and int(startMin) < int(endMin))):
             try:
                 # while True:
                 #     bit_hash = os.urandom(16)
                 new_event = Event(title,startHour,endHour,startMin,endMin, curr_day)
+
                 if curr_day not in self.events:
                     self.events[curr_day] = []
                     self.events[curr_day].append(new_event)
                 else:
+                    #sort by startHour first to last event
                     self.events[curr_day].append(new_event)
-
-                
-
+                    self.events[curr_day].sort(key=lambda event : (event.starthour, event.startmin))
 
 
+                    # hour_difference = int(self.events[curr_day][0].starthour) - int(startHour)
+                    # if hour_difference < 0:
+                    #     self.events[curr_day].append(new_event)
+                    # elif hour_difference > 0:
+                    #     self.events[curr_day].insert(0, new_event)
+                    # else:
+                    #     min_difference = int(self.events[curr_day][0].startmin) - int(startMin)
+                    #     if min_difference < 0 or min_difference == 0:
+                    #         self.events[curr_day].append(new_event)
+                    #     elif min_difference > 0:
+                    #         self.events[curr_day].insert(0, new_event)
+                        
+                        
             except ValueError:
                 print('invalid time entry')
         else:
