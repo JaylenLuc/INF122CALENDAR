@@ -84,19 +84,14 @@ class MainWindow(QMainWindow):
         #self.scroll_events_box_layout.addWidget(QLabel("NEWLABEL"))
     
     def _create_settings_layout(self):
-        addeventbutton = QPushButton("Add Event")
-        addeventbutton.setStyleSheet('color:green')
-        addeventbutton.pressed.connect(self.reveal_settings_add)
-        removeeventbutton = QPushButton("Remove Event")
-        removeeventbutton.setStyleSheet('color:green')
-        removeeventbutton.pressed.connect(self.reveal_settings_remove)
-        updateeventbutton = QPushButton("Update Event")
-        updateeventbutton.setStyleSheet('color:green')
-        updateeventbutton.pressed.connect(self.reveal_settings_update)
-
-        self.settings_layout.addWidget(addeventbutton)
-        self.settings_layout.addWidget(removeeventbutton)
-        self.settings_layout.addWidget(updateeventbutton)
+        self.eventsettingscombobox = QComboBox()
+        # addeventbutton = QPushButton("Add Event")
+        # addeventbutton.setStyleSheet('color:green')
+        self.eventsettingscombobox.currentIndexChanged.connect(self.reveal_settings)
+        self.eventsettingscombobox.addItem("Add Event")
+        self.eventsettingscombobox.addItem("Remove Event")
+        self.eventsettingscombobox.addItem("Update Event")
+        self.settings_layout.addWidget(self.eventsettingscombobox)
         self.settings_date_selection = QLabel(self.calendar.selectedDate().toString())
         self.calendar.selectionChanged.connect(self.calendar_date_slot)
         self.settings_layout.addWidget(self.settings_date_selection)
@@ -106,7 +101,7 @@ class MainWindow(QMainWindow):
         settings_remove_event = QWidget()
         remove_event_layout = QGridLayout()  
         settings_remove_event.setLayout(remove_event_layout)  
-        remove_label = QLabel("NOT IMPLEMENTED")
+        remove_label = QLabel("NOT IMPLEMENTED for remove")
         remove_event_layout.addWidget(remove_label,0,0)
         self.stacked_layout.addWidget(settings_remove_event)
     
@@ -173,14 +168,10 @@ class MainWindow(QMainWindow):
         # self.events_title_day.setText(self.date_in_string)
         self.update_events_list()
 
-    def reveal_settings_add(self):
-        self.stacked_layout.setCurrentIndex(0)
-
-    def reveal_settings_remove(self):
-        self.stacked_layout.setCurrentIndex(1)
-
-    def reveal_settings_update(self):
-        self.stacked_layout.setCurrentIndex(2)
+    def reveal_settings(self):
+        if (self.eventsettingscombobox.currentIndex() == 0) : self.stacked_layout.setCurrentIndex(0)
+        elif (self.eventsettingscombobox.currentIndex() == 1) :self.stacked_layout.setCurrentIndex(1)
+        else: self.stacked_layout.setCurrentIndex(2)
 
     def add_event(self):
         if (self.set_name.text()):
