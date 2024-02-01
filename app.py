@@ -2,9 +2,9 @@ import sys
 
 import users
 
-
+from functools import partial
 from PyQt6.QtCore import QSize, Qt
-from PyQt6.QtWidgets import QScrollBar, QScrollArea, QApplication, QMainWindow, QPushButton, QHBoxLayout,QComboBox,QStackedLayout,QLabel, QLineEdit  ,QGridLayout , QWidget, QLabel, QCalendarWidget ,QVBoxLayout
+from PyQt6.QtWidgets import QFrame,QScrollBar, QScrollArea, QApplication, QMainWindow, QPushButton, QHBoxLayout,QComboBox,QStackedLayout,QLabel, QLineEdit  ,QGridLayout , QWidget, QLabel, QCalendarWidget ,QVBoxLayout
 from PyQt6.QtGui import QIcon, QFont
 
 # Subclass QMainWindow to customize your application's main window
@@ -16,10 +16,13 @@ class MainWindow(QMainWindow):
         self.selected_user_index = 0
         self.date_class = ""
         self.users = []
+        self.curr_selection = -1
+  
         self.current_events_posted = []
         #for now add one user initially
         main_user = users.User(1,"user")
         self.users.append(main_user)
+        self.current_event_selected = None
 
         # Set the central widget of the Window.
 
@@ -50,6 +53,7 @@ class MainWindow(QMainWindow):
 
         #create main_widgit and add calendar layout to it. main_widgit to be added to the central widgit
         main_widget = QWidget()
+        #self.calendar.setStyleSheet("background-color :  #C3B1E1")
         main_widget.setLayout(self.calendar_layout)
         self.setCentralWidget(main_widget)
 
@@ -66,7 +70,7 @@ class MainWindow(QMainWindow):
         #date selection label
         self.label = QLabel("Selected Date Is : " + self.date_in_string)
         self.label.setFont(QFont("Courier", 15))
-        self.label.setStyleSheet('color:green')
+        self.label.setStyleSheet('color: black')
         self.calendar_layout.addWidget(self.label,0,1)
 
     def _create_events_list_widgit(self):
@@ -85,6 +89,7 @@ class MainWindow(QMainWindow):
     
     def _create_settings_layout(self):
         self.eventsettingscombobox = QComboBox()
+        #self.eventsettingscombobox.setStyleSheet("QPushButton { text-align: left; background-color : #C3B1E1; border: 1px solid black; line-height: 1.8;border-radius: 155px;}")
         # addeventbutton = QPushButton("Add Event")
         # addeventbutton.setStyleSheet('color:green')
         self.eventsettingscombobox.currentIndexChanged.connect(self.reveal_settings)
@@ -93,7 +98,6 @@ class MainWindow(QMainWindow):
         self.eventsettingscombobox.addItem("Update Event")
         self.settings_layout.addWidget(self.eventsettingscombobox)
         self.settings_date_selection = QLabel(self.calendar.selectedDate().toString())
-        self.calendar.selectionChanged.connect(self.calendar_date_slot)
         self.settings_layout.addWidget(self.settings_date_selection)
         self.calendar_layout.addLayout(self.settings_layout,1,2)
 
@@ -101,8 +105,19 @@ class MainWindow(QMainWindow):
         settings_remove_event = QWidget()
         remove_event_layout = QGridLayout()  
         settings_remove_event.setLayout(remove_event_layout)  
-        remove_label = QLabel("NOT IMPLEMENTED for remove")
+        remove_label = QLabel("Select an Event to Remove by clicking on the event on the bottom left section")
+        remove_label_sel = QLabel("Selected Event: ")
         remove_event_layout.addWidget(remove_label,0,0)
+        remove_event_layout.addWidget(remove_label_sel,1,0)
+        self.remove_event_line = QLabel()
+        self.remove_event_line.setText("No event selected")
+        self.remove_event_line.setStyleSheet("border: 1px solid black;")
+        self.remove_event_line.setFixedSize(220, 50)
+        remove_event_layout.addWidget(self.remove_event_line,1,1)
+
+        self.remove_button = QPushButton("Remove Selected Event")
+        self.remove_button.clicked.connect(self.remove_event)
+        remove_event_layout.addWidget(self.remove_button, 2,0)
         self.stacked_layout.addWidget(settings_remove_event)
     
     def _create_stacked_update_settings_layout(self):
@@ -120,7 +135,7 @@ class MainWindow(QMainWindow):
         add_event_layout = QGridLayout()
         add_event_layout.setSpacing(0)
         settings_add_event_.setLayout(add_event_layout)
-        self.calendar.selectionChanged.connect(self.calendar_date_slot)
+        #self.calendar.selectionChanged.connect(self.calendar_date_slot)
         set_name_label = QLabel()
         set_name_label.setText("Enter event name: ")
         add_event_layout.addWidget(set_name_label,0,0)
@@ -166,13 +181,54 @@ class MainWindow(QMainWindow):
         self.label.setText("Selected Date Is : " + self.date_in_string)
         self.settings_date_selection.setText("Selected Date Is : " + self.date_in_string)
         # self.events_title_day.setText(self.date_in_string)
+        self.curr_selection = -1
         self.update_events_list()
+        
+
+    def event_selection(self,event):
+        # self.current_event_selected = event
+        # print(event)
+        # setStyleSheet("background-color : yellow") 
+        print("clicked: ", event)
+        current_event = int(event)
+        if current_event != self.curr_selection and self.curr_selection != -1:
+            self.current_events_posted[self.curr_selection].setStyleSheet("QPushButton { text-align: left; background-color : #d3d3d3; border: 1px solid black; line-height: 1.8;border-radius: 155px;}")
+        self.curr_selection = current_event
+        self.current_events_posted[self.curr_selection].setStyleSheet("QPushButton { text-align: left; background-color : #C3B1E1; border: 1px solid black; line-height: 1.8;border-radius: 155px;}")
+
+        selection_settings = self.eventsettingscombobox.currentIndex()
+
+        match selection_settings:
+            case 1:
+                self.remove_event_line.setText(f"{self.curr_selection} " + self.users[self.selected_user_index].events[self.date_in_string][self.curr_selection].title) 
+
+
 
     def reveal_settings(self):
-        if (self.eventsettingscombobox.currentIndex() == 0) : self.stacked_layout.setCurrentIndex(0)
-        elif (self.eventsettingscombobox.currentIndex() == 1) :self.stacked_layout.setCurrentIndex(1)
-        else: self.stacked_layout.setCurrentIndex(2)
-
+        current_index = self.eventsettingscombobox.currentIndex()
+        if self.curr_selection != -1:
+            self.current_events_posted[self.curr_selection].setStyleSheet("QPushButton { text-align: left; background-color : #d3d3d3; border: 1px solid black; line-height: 1.8;border-radius: 155px;}")
+        self.curr_selection = -1
+        try:
+            self.remove_event_line.setText("No event selected")
+        except AttributeError:
+            pass
+        match current_index:
+            case 0 : 
+                self.stacked_layout.setCurrentIndex(0)
+            case 1 : #remove 
+                self.stacked_layout.setCurrentIndex(1)
+            case 2: #update
+                self.stacked_layout.setCurrentIndex(2)
+    
+    def remove_event(self):
+        current_user = self.users[self.selected_user_index]
+        if self.curr_selection != -1:
+            del current_user.events[self.date_in_string][self.curr_selection]
+        self.curr_selection = -1
+        self.remove_event_line.setText("No event selected")
+        self.update_events_list()
+        
     def add_event(self):
         if (self.set_name.text()):
             current_user = self.users[self.selected_user_index]
@@ -198,16 +254,30 @@ class MainWindow(QMainWindow):
         current_user = self.users[self.selected_user_index]
 
         self.current_events_posted = []
+        print("on switch: ",self.curr_selection)
         if self.date_in_string in current_user.events:
-            print("yes")
-            for event in current_user.events[self.date_in_string]:
-                new_label =QLabel(f"{event.title}\n Start Time {event.starthour}:{event.startmin}\n End Time {event.endhour}:{event.endmin}")
+            for ind, event in enumerate(current_user.events[self.date_in_string]):
+                #3rd index
+                new_label = QPushButton()
+                new_label.setText(f"{ind}: {event.title}\n Start Time {event.starthour}:{event.startmin}\n End Time {event.endhour}:{event.endmin}")
+                new_label.clicked.connect(partial(self.event_selection,f"{ind}"))
+                curr_color = ""
+                
+                if self.curr_selection == -1 or ind != self.curr_selection:
+                    curr_color = "#d3d3d3"
+                else:
+                     curr_color = "#C3B1E1"
+                new_label.setStyleSheet(f"QPushButton {{ text-align: left; background-color : {curr_color}; border: 1px solid black; line-height: 1.8;border-radius: 155px;}}")
                 self.current_events_posted.append(new_label)
-                new_label.setStyleSheet("border: 1px solid black;") 
+                
                 self.scroll_events_box_layout.addWidget(new_label)
                 print("DONE")
+            #self.add_slots_to_events()
             
             #print(self.current_events_posted)
+    
+
+
             
 
 
