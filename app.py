@@ -273,6 +273,7 @@ class MainWindow(QMainWindow):
         try:
             self.remove_event_line.setText("No event selected")
             self.ucurrent_name.setText("No event selected")
+            self.uset_name.setText("")
             self.uhour_combo_box.setCurrentIndex(0)
 
             self.uhour_combo_boxe.setCurrentIndex(0)
