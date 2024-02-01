@@ -17,7 +17,9 @@ class User :
         for k,v in self.events.items():
             ret += f" {k}: { [i.__str__() for i in v] }\n"
         return ret
-    
+    def sort_ad_hoc(self, curr_day):
+        self.events[curr_day].sort(key=lambda event : (event.starthour, event.startmin))
+        
     def createEvent(self, title : str, startHour: int, endHour: int, startMin: int, endMin: int, curr_day):
         #create unique ID for each event and check for conflicts
         start_time = str(startHour) + str(startMin)
@@ -35,7 +37,7 @@ class User :
                 else:
                     #sort by startHour first to last event
                     self.events[curr_day].append(new_event)
-                    self.events[curr_day].sort(key=lambda event : (event.starthour, event.startmin))
+                    self.sort_ad_hoc(curr_day)
 
 
                     # hour_difference = int(self.events[curr_day][0].starthour) - int(startHour)

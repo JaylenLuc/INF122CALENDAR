@@ -1,7 +1,7 @@
 import sys
 
 import users
-
+from event import Event
 from functools import partial
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtWidgets import QFrame,QScrollBar, QScrollArea, QApplication, QMainWindow, QPushButton, QHBoxLayout,QComboBox,QStackedLayout,QLabel, QLineEdit  ,QGridLayout , QWidget, QLabel, QCalendarWidget ,QVBoxLayout
@@ -121,12 +121,51 @@ class MainWindow(QMainWindow):
         self.stacked_layout.addWidget(settings_remove_event)
     
     def _create_stacked_update_settings_layout(self):
-        settings_update_event = QWidget()
-        update_event_layout = QGridLayout()  
-        settings_update_event.setLayout(update_event_layout)  
-        update_label = QLabel("NOT IMPLEMENTED for update")
-        update_event_layout.addWidget(update_label,0,0)
-        self.stacked_layout.addWidget(settings_update_event)
+        settings_update_event_ = QWidget() #then add a layout to taht QWidget and thats gonna be the settings for each button
+        update_event_layout = QGridLayout()
+        update_event_layout.setSpacing(0)
+        settings_update_event_.setLayout(update_event_layout)
+        #self.calendar.selectionChanged.connect(self.calendar_date_slot)
+        self.ucurrent_name = QLabel()
+        self.ucurrent_name.setText("No event selected")
+        
+        update_event_layout.addWidget(self.ucurrent_name,0,0)
+        set_name_label = QLabel()
+        set_name_label.setText("Enter new event name: ")
+        update_event_layout.addWidget(set_name_label,1,0)
+        self.uset_name = QLineEdit()
+        self.uset_name.setFixedWidth(300)
+        update_event_layout.addWidget(self.uset_name,1,1)
+        self.uhour_combo_box = QComboBox()
+        self.uhour_combo_box.setFixedWidth(100)
+        self.uhour_combo_box.addItems([str(i) for i in range(24)])
+        uhour_combo_box_label = QLabel("set your new event start hour: ")
+        update_event_layout.addWidget(uhour_combo_box_label)
+        update_event_layout.addWidget(self.uhour_combo_box)
+        umin_combo_box_label = QLabel("set your new event start minute: ")
+        self.umin_combo_box = QComboBox()
+        self.umin_combo_box.setFixedWidth(100)
+        self.umin_combo_box.addItems([str(i) for i in range(60)])
+        update_event_layout.addWidget(umin_combo_box_label)
+        update_event_layout.addWidget(self.umin_combo_box)
+
+        self.uhour_combo_boxe = QComboBox()
+        self.uhour_combo_boxe.setFixedWidth(100)
+        self.uhour_combo_boxe.addItems([str(i) for i in range(24)])
+        uhour_combo_box_labele = QLabel("set your new event end hour: ")
+        update_event_layout.addWidget(uhour_combo_box_labele)
+        update_event_layout.addWidget(self.uhour_combo_boxe)
+        umin_combo_box_labele = QLabel("set your new event end minute: ")
+        self.umin_combo_boxe = QComboBox()
+        self.umin_combo_boxe.setFixedWidth(100)
+        self.umin_combo_boxe.addItems([str(i) for i in range(60)])
+        update_event_layout.addWidget(umin_combo_box_labele)
+        update_event_layout.addWidget(self.umin_combo_boxe)
+        update_event_button = QPushButton()
+        update_event_button.released.connect(self.update_event)
+        update_event_button.setText("Update Event")
+        update_event_layout.addWidget(update_event_button)
+        self.stacked_layout.addWidget(settings_update_event_)
 
     def _create_stacked_add_settings_layout(self):
         #here is where u add layouts for each function to the stacked_layout 
@@ -199,9 +238,21 @@ class MainWindow(QMainWindow):
         selection_settings = self.eventsettingscombobox.currentIndex()
 
         match selection_settings:
-            case 1:
+            case 1 :
                 self.remove_event_line.setText(f"{self.curr_selection} " + self.users[self.selected_user_index].events[self.date_in_string][self.curr_selection].title) 
+            
+            case 2:
+                current_user = self.users[self.selected_user_index]
+                self.uset_name.setText(current_user.events[self.date_in_string][self.curr_selection].title)
+                self.ucurrent_name.setText(f"{self.curr_selection} " + self.users[self.selected_user_index].events[self.date_in_string][self.curr_selection].title) 
+                
+                self.uhour_combo_box.setCurrentIndex(int(current_user.events[self.date_in_string][self.curr_selection].starthour))
 
+                self.uhour_combo_boxe.setCurrentIndex(int(current_user.events[self.date_in_string][self.curr_selection].endhour))
+
+                self.umin_combo_box.setCurrentIndex(int(current_user.events[self.date_in_string][self.curr_selection].startmin))
+
+                self.umin_combo_boxe.setCurrentIndex(int(current_user.events[self.date_in_string][self.curr_selection].endmin))
 
 
     def reveal_settings(self):
@@ -211,6 +262,14 @@ class MainWindow(QMainWindow):
         self.curr_selection = -1
         try:
             self.remove_event_line.setText("No event selected")
+            self.ucurrent_name.setText("No event selected")
+            self.uhour_combo_box.setCurrentIndex(0)
+
+            self.uhour_combo_boxe.setCurrentIndex(0)
+
+            self.umin_combo_box.setCurrentIndex(0)
+
+            self.umin_combo_boxe.setCurrentIndex(0)
         except AttributeError:
             pass
         match current_index:
@@ -221,11 +280,39 @@ class MainWindow(QMainWindow):
             case 2: #update
                 self.stacked_layout.setCurrentIndex(2)
     
+    def update_event(self):
+        current_user = self.users[self.selected_user_index]
+        if self.curr_selection != -1:
+            if self.uset_name.text() != "No event selected":
+                #print( current_user.events[self.date_in_string])
+                new_data_list = Event.data_reprocess(self.uhour_combo_box.currentText(),self.uhour_combo_boxe.currentText(),self.umin_combo_box.currentText(),
+                                     self.umin_combo_boxe.currentText() )
+                self.users[self.selected_user_index].events[self.date_in_string][self.curr_selection].title = self.uset_name.text()
+                self.users[self.selected_user_index].events[self.date_in_string][self.curr_selection].starthour = new_data_list[0]
+                self.users[self.selected_user_index].events[self.date_in_string][self.curr_selection].endhour = new_data_list[1]
+                self.users[self.selected_user_index].events[self.date_in_string][self.curr_selection].startmin = new_data_list[2]
+                self.users[self.selected_user_index].events[self.date_in_string][self.curr_selection].endmin = new_data_list[3]
+                self.ucurrent_name.setText("No event selected")
+                self.uhour_combo_box.setCurrentIndex(0)
+
+                self.uhour_combo_boxe.setCurrentIndex(0)
+
+                self.umin_combo_box.setCurrentIndex(0)
+
+                self.umin_combo_boxe.setCurrentIndex(0)
+                #update event then set everything to zero and default
+
+               # print( current_user.events[self.date_in_string])
+        self.curr_selection = -1
+        self.ucurrent_name.setText("No event selected")
+        self.users[self.selected_user_index].sort_ad_hoc(self.date_in_string)
+        self.update_events_list()
+
     def remove_event(self):
         current_user = self.users[self.selected_user_index]
         if self.curr_selection != -1:
             del current_user.events[self.date_in_string][self.curr_selection]
-        self.curr_selection = -1
+            self.curr_selection = -1
         self.remove_event_line.setText("No event selected")
         self.update_events_list()
         
@@ -242,6 +329,7 @@ class MainWindow(QMainWindow):
             #here you populate the events_list 
 
             #self.events_list #this is the QVBoxLayout 
+            self.set_name.setText("")
             self.update_events_list()
         else:
             print("title cannot be empty")
