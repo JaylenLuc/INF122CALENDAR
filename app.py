@@ -220,6 +220,16 @@ class MainWindow(QMainWindow):
         self.label.setText("Selected Date Is : " + self.date_in_string)
         self.settings_date_selection.setText("Selected Date Is : " + self.date_in_string)
         # self.events_title_day.setText(self.date_in_string)
+        self.remove_event_line.setText("No event selected")
+        self.ucurrent_name.setText("No event selected")
+        self.uset_name.setText("")
+        self.uhour_combo_box.setCurrentIndex(0)
+
+        self.uhour_combo_boxe.setCurrentIndex(0)
+
+        self.umin_combo_box.setCurrentIndex(0)
+
+        self.umin_combo_boxe.setCurrentIndex(0)
         self.curr_selection = -1
         self.update_events_list()
         
@@ -283,7 +293,7 @@ class MainWindow(QMainWindow):
     def update_event(self):
         current_user = self.users[self.selected_user_index]
         if self.curr_selection != -1:
-            if self.uset_name.text() != "No event selected":
+            if self.uset_name.text() != "":
                 #print( current_user.events[self.date_in_string])
                 new_data_list = Event.data_reprocess(self.uhour_combo_box.currentText(),self.uhour_combo_boxe.currentText(),self.umin_combo_box.currentText(),
                                      self.umin_combo_boxe.currentText() )
