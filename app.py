@@ -246,13 +246,14 @@ class MainWindow(QMainWindow):
         
     
     def change_color(self):
+
+        #constaint saturation to 150 and below
         rgba_tuple = self.color_dialog.currentColor().toRgb().getRgb()
 
         curr_color = "rgba" + str(rgba_tuple)
         #inverse color 
         new_inverse_tuple =  "rgba" + str((255 - rgba_tuple[0], 255 - rgba_tuple[1], 255 - rgba_tuple[2], rgba_tuple[3]))
-        # print(rgba_tuple)
-        # print(new_inverse_tuple)
+        
         self.setStyleSheet(f'color: {new_inverse_tuple}; background-color: {curr_color};')
         # print("here")
 

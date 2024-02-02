@@ -7,7 +7,7 @@ class User :
     def __init__(self, userID : int, userName : str):
         self.id = userID
         self.username = userName
-        self.events = dict() # [int, Event]
+        self.events = dict() # [str, Event]
         self.calendars = set() # 1 = gregorian calendar
         self.calendars.add(1)
         self.timetype = 24 
@@ -19,11 +19,11 @@ class User :
         return ret
     def sort_ad_hoc(self, curr_day):
         self.events[curr_day].sort(key=lambda event : (event.starthour, event.startmin))
-        
-    def createEvent(self, title : str, startHour: int, endHour: int, startMin: int, endMin: int, curr_day):
+
+    def createEvent(self, title : str, startHour: str, endHour: str, startMin: str, endMin: str, curr_day: str):
         #create unique ID for each event and check for conflicts
-        start_time = str(startHour) + str(startMin)
-        end_time = str(endHour) + str(endMin)
+        # start_time = str(startHour) + str(startMin)
+        # end_time = str(endHour) + str(endMin)
 
         if self.timetype == 24 and  (int(startHour) < int(endHour) or (int(startHour) == int(endHour) and int(startMin) < int(endMin))):
             try:
