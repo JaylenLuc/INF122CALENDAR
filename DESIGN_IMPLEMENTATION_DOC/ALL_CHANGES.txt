@@ -1,0 +1,12 @@
+CHANGES:
+
+No calendar class was needed because the calendar is actually a GUI component
+in the GUI class, in this case it is the QMainWindow. A very similar fate holds True
+for EventManager class. The event manager class are now methods and components within 
+the GUI QMainWindow. They are now a series of signals from components (emitted events) and 
+slots (event listeners). All these aforementioned changes are unvaoidable because 
+they are components that are simple features that should come packaged with a GUI
+framework. Besides that, User class and event class are essentially the same and missing functions
+are because I chose to not implement calendar types or fully implement user switching and send and receive.
+Only the potential feature of supporting multiple users is accounted for in the code and is fairly
+easy to extend the code for.
