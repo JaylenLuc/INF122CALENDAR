@@ -1,10 +1,11 @@
 import sys
 
 import users
+from coloroverDialog import BetterColorDialog
 from event import Event
 from functools import partial
 from PyQt6.QtCore import QSize, Qt
-from PyQt6.QtWidgets import QFrame,QScrollBar, QScrollArea, QApplication, QMainWindow, QPushButton, QHBoxLayout,QComboBox,QStackedLayout,QLabel, QLineEdit  ,QGridLayout , QWidget, QLabel, QCalendarWidget ,QVBoxLayout
+from PyQt6.QtWidgets import QDialogButtonBox, QColorDialog,QFrame,QScrollBar, QScrollArea, QApplication, QMainWindow, QPushButton, QHBoxLayout,QComboBox,QStackedLayout,QLabel, QLineEdit  ,QGridLayout , QWidget, QLabel, QCalendarWidget ,QVBoxLayout
 from PyQt6.QtGui import QIcon, QFont
 
 # Subclass QMainWindow to customize your application's main window
@@ -12,7 +13,6 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Calendar Application")
-
         self.selected_user_index = 0
         self.date_class = ""
         self.users = []
@@ -47,7 +47,8 @@ class MainWindow(QMainWindow):
         self._create_stacked_add_settings_layout()
         self._create_stacked_remove_settings_layout()
         self._create_stacked_update_settings_layout()
-
+        self._create_general_settings_section()
+        self._create_color_dialog()
         #after all stacked widgits are created and added to the stacklayout, add the stackedlayout to the settings_layout
         self.settings_layout.addLayout(self.stacked_layout)
 
@@ -211,8 +212,50 @@ class MainWindow(QMainWindow):
         add_event_layout.addWidget(add_event_button)
         self.stacked_layout.addWidget(settings_add_event_)
 
+    def _create_general_settings_section(self):
+        self.gen_settings_stacked_layout = QStackedLayout()
+        self.gen_settings_widgit = QWidget()
+        self.gen_settings = QVBoxLayout()
+        self.gen_settings_widgit.setLayout(self.gen_settings)
+        self.gen_settings_combo_box = QComboBox()
+        self.gen_settings_combo_box.addItems([ "Color Customization"])
+        self.gen_settings_combo_box.currentIndexChanged.connect(self.gen_settings_change)
+
+        self.gen_settings.addWidget(self.gen_settings_combo_box)
+        self.gen_settings_stacked_widgit = QWidget()
+        self.gen_settings_stacked_widgit.setLayout(self.gen_settings_stacked_layout)
+        self.gen_settings.addWidget(self.gen_settings_stacked_widgit)
+        self.calendar_layout.addWidget(self.gen_settings_widgit,2,2)
+        
+    def _create_color_dialog(self):
+        # self.color_widgit = QWi
+        self.color_dialog = BetterColorDialog()
+        self.color_dialog.currentColorChanged.connect(self.change_color)
+        self.color_dialog.setOptions(QColorDialog.ColorDialogOption.NoButtons)
+        self.gen_settings_stacked_layout.addWidget(self.color_dialog)
+        # setting current color
+        
+        
 
     #SLOTS-----------------------------------------------------------------------------------------------------------------------------------------
+    def gen_settings_change(self):
+        match self.gen_settings_combo_box.currentIndex():
+            case 0:
+                self.gen_settings_stacked_layout.setCurrentIndex(0)
+                self.color_dialog.exec()
+        
+    
+    def change_color(self):
+        rgba_tuple = self.color_dialog.currentColor().toRgb().getRgb()
+
+        curr_color = "rgba" + str(rgba_tuple)
+        #inverse color 
+        new_inverse_tuple =  "rgba" + str((255 - rgba_tuple[0], 255 - rgba_tuple[1], 255 - rgba_tuple[2], rgba_tuple[3]))
+        # print(rgba_tuple)
+        # print(new_inverse_tuple)
+        self.setStyleSheet(f'color: {new_inverse_tuple}; background-color: {curr_color};')
+        # print("here")
+
     def calendar_date_slot(self):
         self.date_class = self.calendar.selectedDate()
         self.date_in_string = self.date_class.toString()
