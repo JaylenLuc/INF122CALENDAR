@@ -10,3 +10,20 @@ framework. Besides that, User class and event class are essentially the same and
 are because I chose to not implement calendar types or fully implement user switching and send and receive.
 Only the potential feature of supporting multiple users is accounted for in the code and is fairly
 easy to extend the code for.
+
+HOW THE CODE WORKS:
+The MainWindow class has components. These components are widgets and layouts that potentialy hold another widgit within another layout.
+These widgets are the atomic units of the component based GUI. These widgets emit signals of all kinds depending on 
+the kind of user event. The Event is then caught by a slot or listener, for the sake of avoiding
+PyQt6 Nomenclature I will use the term events and listeners. These listeners do either of two things:
+--since we are using an architecure similar to model view controller i will use these terms to describe the
+structures that hold data and methods for the User and events, the GUI and the slots--they will update the view
+depending on the kind of event or they will update the model then call a auxillary function to update the view
+ad hoc whenever a listener is called that the program knows made changes to the model. These functions act as controllers.
+GUI --> listeners/controllers --> model --> reactionary functions/controllers --> GUI. For the main functionalities, remove, update and 
+add, the events are classes that are stored within the user class. A unique string in ISO format describes the date and is the key
+to access an ordered list of events. These events are ordered in ascending order based on start hour and start minute and the function that sorts the list
+is called everytime there is any update to the events list. The GUI holds a list that composes of a series of QPushButton. These QPushButton are constructed
+when the GUI updates the events list of the user class. The QPushButtons are populated with correct event info one by one in the correct bucket in events map in the user class.
+Then they are drawn the view. Any time there is any change to the events based on singals from components, the listeners will then 
+do their appropriate instructions, update the model whether that be adding, removing or updating an event, then update the GUI.
