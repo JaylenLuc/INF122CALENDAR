@@ -10,8 +10,12 @@ from PyQt6.QtGui import QIcon, QFont
 
 # Subclass QMainWindow to customize your application's main window
 class MainWindow(QMainWindow):
+    STATIC_INSTANCE = None
     def __init__(self):
         super().__init__()
+
+    def private__init__(self):
+        
         self.setWindowTitle("Calendar Application")
         self.selected_user_index = 0
         self.date_class = ""
@@ -57,6 +61,13 @@ class MainWindow(QMainWindow):
         #self.calendar.setStyleSheet("background-color :  #C3B1E1")
         main_widget.setLayout(self.calendar_layout)
         self.setCentralWidget(main_widget)
+
+    @staticmethod
+    def get_instance():
+        if MainWindow.STATIC_INSTANCE == None:
+            MainWindow.STATIC_INSTANCE = MainWindow()
+            MainWindow.STATIC_INSTANCE.private__init__()
+        return MainWindow.STATIC_INSTANCE
 
     #WIDGIT-CREATORS-----------------------------------------------------------------------------------------------------------------------------
 
@@ -431,7 +442,7 @@ class MainWindow(QMainWindow):
  
  
 app = QApplication(sys.argv)
-
-window = MainWindow()
+#singleton
+window = MainWindow.get_instance()
 window.show()
 sys.exit(app.exec())
