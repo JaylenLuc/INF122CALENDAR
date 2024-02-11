@@ -11,11 +11,10 @@ from PyQt6.QtGui import QIcon, QFont
 # Subclass QMainWindow to customize your application's main window
 class MainWindow(QMainWindow):
     STATIC_INSTANCE = None
-    def __init__(self):
-        super().__init__()
+    FIXED_HEIGHT_UCOMBO = 100
 
     def private__init__(self):
-        
+        super().__init__()
         self.setWindowTitle("Calendar Application")
         self.selected_user_index = 0
         self.date_class = ""
@@ -27,7 +26,7 @@ class MainWindow(QMainWindow):
         main_user = users.User(1,"user")
         self.users.append(main_user)
         self.current_event_selected = None
-
+        self.current_user = self.users[self.selected_user_index]
         # Set the central widget of the Window.
 
         self.setMinimumSize(QSize(1200, 1000))
@@ -149,27 +148,27 @@ class MainWindow(QMainWindow):
         self.uset_name.setFixedWidth(300)
         update_event_layout.addWidget(self.uset_name,1,1)
         self.uhour_combo_box = QComboBox()
-        self.uhour_combo_box.setFixedWidth(100)
+        self.uhour_combo_box.setFixedWidth(MainWindow.FIXED_HEIGHT_UCOMBO)
         self.uhour_combo_box.addItems([str(i) for i in range(24)])
         uhour_combo_box_label = QLabel("set your new event start hour: ")
         update_event_layout.addWidget(uhour_combo_box_label)
         update_event_layout.addWidget(self.uhour_combo_box)
         umin_combo_box_label = QLabel("set your new event start minute: ")
         self.umin_combo_box = QComboBox()
-        self.umin_combo_box.setFixedWidth(100)
+        self.umin_combo_box.setFixedWidth(MainWindow.FIXED_HEIGHT_UCOMBO)
         self.umin_combo_box.addItems([str(i) for i in range(60)])
         update_event_layout.addWidget(umin_combo_box_label)
         update_event_layout.addWidget(self.umin_combo_box)
 
         self.uhour_combo_boxe = QComboBox()
-        self.uhour_combo_boxe.setFixedWidth(100)
+        self.uhour_combo_boxe.setFixedWidth(MainWindow.FIXED_HEIGHT_UCOMBO)
         self.uhour_combo_boxe.addItems([str(i) for i in range(24)])
         uhour_combo_box_labele = QLabel("set your new event end hour: ")
         update_event_layout.addWidget(uhour_combo_box_labele)
         update_event_layout.addWidget(self.uhour_combo_boxe)
         umin_combo_box_labele = QLabel("set your new event end minute: ")
         self.umin_combo_boxe = QComboBox()
-        self.umin_combo_boxe.setFixedWidth(100)
+        self.umin_combo_boxe.setFixedWidth(MainWindow.FIXED_HEIGHT_UCOMBO)
         self.umin_combo_boxe.addItems([str(i) for i in range(60)])
         update_event_layout.addWidget(umin_combo_box_labele)
         update_event_layout.addWidget(self.umin_combo_boxe)
@@ -193,27 +192,27 @@ class MainWindow(QMainWindow):
         self.set_name = QLineEdit()
         add_event_layout.addWidget(self.set_name,0,1)
         self.hour_combo_box = QComboBox()
-        self.hour_combo_box.setFixedWidth(100)
+        self.hour_combo_box.setFixedWidth(MainWindow.FIXED_HEIGHT_UCOMBO)
         self.hour_combo_box.addItems([str(i) for i in range(24)])
         hour_combo_box_label = QLabel("set your event start hour: ")
         add_event_layout.addWidget(hour_combo_box_label)
         add_event_layout.addWidget(self.hour_combo_box)
         min_combo_box_label = QLabel("set your event start minute: ")
         self.min_combo_box = QComboBox()
-        self.min_combo_box.setFixedWidth(100)
+        self.min_combo_box.setFixedWidth(MainWindow.FIXED_HEIGHT_UCOMBO)
         self.min_combo_box.addItems([str(i) for i in range(60)])
         add_event_layout.addWidget(min_combo_box_label)
         add_event_layout.addWidget(self.min_combo_box)
 
         self.hour_combo_boxe = QComboBox()
-        self.hour_combo_boxe.setFixedWidth(100)
+        self.hour_combo_boxe.setFixedWidth(MainWindow.FIXED_HEIGHT_UCOMBO)
         self.hour_combo_boxe.addItems([str(i) for i in range(24)])
         hour_combo_box_labele = QLabel("set your event end hour: ")
         add_event_layout.addWidget(hour_combo_box_labele)
         add_event_layout.addWidget(self.hour_combo_boxe)
         min_combo_box_labele = QLabel("set your event end minute: ")
         self.min_combo_boxe = QComboBox()
-        self.min_combo_boxe.setFixedWidth(100)
+        self.min_combo_boxe.setFixedWidth(MainWindow.FIXED_HEIGHT_UCOMBO)
         self.min_combo_boxe.addItems([str(i) for i in range(60)])
         add_event_layout.addWidget(min_combo_box_labele)
         add_event_layout.addWidget(self.min_combo_boxe)
@@ -275,16 +274,7 @@ class MainWindow(QMainWindow):
         self.label.setText("Selected Date Is : " + self.date_in_string)
         self.settings_date_selection.setText("Selected Date Is : " + self.date_in_string)
         # self.events_title_day.setText(self.date_in_string)
-        self.remove_event_line.setText("No event selected")
-        self.ucurrent_name.setText("No event selected")
-        self.uset_name.setText("")
-        self.uhour_combo_box.setCurrentIndex(0)
-
-        self.uhour_combo_boxe.setCurrentIndex(0)
-
-        self.umin_combo_box.setCurrentIndex(0)
-
-        self.umin_combo_boxe.setCurrentIndex(0)
+        self.reset_time_bombo_boxes()
         self.curr_selection = -1
         self.update_events_list()
         
@@ -319,13 +309,7 @@ class MainWindow(QMainWindow):
 
                 self.umin_combo_boxe.setCurrentIndex(int(current_user.events[self.date_in_string][self.curr_selection].endmin))
 
-
-    def reveal_settings(self):
-        current_index = self.eventsettingscombobox.currentIndex()
-        if self.curr_selection != -1:
-            self.current_events_posted[self.curr_selection].setStyleSheet("QPushButton { text-align: left; background-color : #d3d3d3; border: 1px solid black; line-height: 1.8;border-radius: 155px;}")
-        self.curr_selection = -1
-        try:
+    def reset_time_bombo_boxes(self):
             self.remove_event_line.setText("No event selected")
             self.ucurrent_name.setText("No event selected")
             self.uset_name.setText("")
@@ -336,6 +320,14 @@ class MainWindow(QMainWindow):
             self.umin_combo_box.setCurrentIndex(0)
 
             self.umin_combo_boxe.setCurrentIndex(0)
+
+    def reveal_settings(self):
+        current_index = self.eventsettingscombobox.currentIndex()
+        if self.curr_selection != -1:
+            self.current_events_posted[self.curr_selection].setStyleSheet("QPushButton { text-align: left; background-color : #d3d3d3; border: 1px solid black; line-height: 1.8;border-radius: 155px;}")
+        self.curr_selection = -1
+        try:
+            self.reset_time_bombo_boxes()
         except AttributeError:
             pass
         match current_index:
@@ -399,19 +391,8 @@ class MainWindow(QMainWindow):
             self.update_events_list()
         else:
             print("title cannot be empty")
-            
-    def update_events_list(self):
 
-        for event in self.current_events_posted:
-            event.deleteLater()
-
-        current_user = self.users[self.selected_user_index]
-
-        self.current_events_posted = []
-        print("on switch: ",self.curr_selection)
-        if self.date_in_string in current_user.events:
-            for ind, event in enumerate(current_user.events[self.date_in_string]):
-                #3rd index
+    def create_event_repr(self,event,ind):
                 new_label = QPushButton()
                 new_label.setText(f"{ind}: {event.title}\n Start Time {event.starthour}:{event.startmin}\n End Time {event.endhour}:{event.endmin}")
                 new_label.clicked.connect(partial(self.event_selection,f"{ind}"))
@@ -425,6 +406,20 @@ class MainWindow(QMainWindow):
                 self.current_events_posted.append(new_label)
                 
                 self.scroll_events_box_layout.addWidget(new_label)
+            
+    def update_events_list(self):
+
+        for event in self.current_events_posted:
+            event.deleteLater()
+
+        current_user = self.users[self.selected_user_index]
+
+        self.current_events_posted = []
+        print("on switch: ",self.curr_selection)
+        if self.date_in_string in current_user.events:
+            for ind, event in enumerate(current_user.events[self.date_in_string]):
+                #3rd index
+                self.create_event_repr(event,ind)
                 print("DONE")
             #self.add_slots_to_events()
             
