@@ -13,7 +13,7 @@ class MainWindow(QMainWindow):
     STATIC_INSTANCE = None
     FIXED_HEIGHT_UCOMBO = 100
 
-    def private__init__(self):
+    def _private__init__(self):
         super().__init__()
         self.setWindowTitle("Calendar Application")
         self.selected_user_index = 0
@@ -65,7 +65,7 @@ class MainWindow(QMainWindow):
     def get_instance():
         if MainWindow.STATIC_INSTANCE == None:
             MainWindow.STATIC_INSTANCE = MainWindow()
-            MainWindow.STATIC_INSTANCE.private__init__()
+            MainWindow.STATIC_INSTANCE._private__init__()
         return MainWindow.STATIC_INSTANCE
 
     #WIDGIT-CREATORS-----------------------------------------------------------------------------------------------------------------------------
